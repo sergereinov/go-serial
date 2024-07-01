@@ -1,3 +1,8 @@
+Fork
+====
+This is a fork of the [go-serial](https://github.com/jacobsa/go-serial) library. The original readme is below this line.
+---
+
 go-serial
 =========
 
