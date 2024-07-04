@@ -1,3 +1,11 @@
+// ------------------------------------------
+// Modified by (c) 2024 Serge Reinov.
+//   The main code has not been changed.
+//   Only compatibility with the new object level has been added.
+//
+// Licensed under the Apache License, Version 2.0.
+// Below is the license of the original project.
+// ------------------------------------------
 // Copyright 2011 Aaron Jacobs. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,10 +36,16 @@ package serial
 import (
 	"errors"
 	"io"
+	"os"
+	"syscall"
+	"unsafe"
 )
-import "os"
-import "syscall"
-import "unsafe"
+
+type serialPort struct {
+	*os.File
+}
+
+var _ = io.ReadWriteCloser((*serialPort)(nil))
 
 // termios types
 type cc_t byte
@@ -196,7 +210,7 @@ func convertOptions(options OpenOptions) (*termios, error) {
 	return &result, nil
 }
 
-func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
+func openInternal(options OpenOptions) (*serialPort, error) {
 	// Open the serial port in non-blocking mode, since otherwise the OS will
 	// wait for the CARRIER line to be asserted.
 	file, err :=
@@ -254,5 +268,5 @@ func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
 	}
 
 	// We're done.
-	return file, nil
+	return &serialPort{file}, nil
 }

@@ -1,3 +1,11 @@
+// ------------------------------------------
+// Modified by (c) 2024 Serge Reinov.
+//   The main code has not been changed.
+//   Only compatibility with the new object level has been added.
+//
+// Licensed under the Apache License, Version 2.0.
+// Below is the license of the original project.
+// ------------------------------------------
 // Copyright 2011 Aaron Jacobs. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +22,28 @@
 
 package serial
 
-import "io"
+import (
+	"io"
+)
 
-func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
-	return nil, "Not implemented on this OS."
+type serialPort struct {
+	io.ReadWriteCloser
+}
+
+var _ = io.ReadWriteCloser((*serialPort)(nil))
+
+func openInternal(_ OpenOptions) (*serialPort, error) {
+	return nil, ErrNotImplementedOnOS
+}
+
+func (m *serialPort) Read(p []byte) (n int, err error) {
+	return 0, ErrNotImplementedOnOS
+}
+
+func (m *serialPort) Write(p []byte) (n int, err error) {
+	return 0, ErrNotImplementedOnOS
+}
+
+func (m *serialPort) Close() error {
+	return ErrNotImplementedOnOS
 }

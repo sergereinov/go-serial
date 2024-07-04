@@ -1,3 +1,11 @@
+// ------------------------------------------
+// Modified by (c) 2024 Serge Reinov.
+//   The main code has not been changed.
+//   Only compatibility with the new object level has been added.
+//
+// Licensed under the Apache License, Version 2.0.
+// ------------------------------------------
+
 package serial
 
 import (
@@ -10,20 +18,24 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-//
+type serialPort struct {
+	*os.File
+}
+
+var _ = io.ReadWriteCloser((*serialPort)(nil))
+
 // Grab the constants with the following little program, to avoid using cgo:
 //
 // #include <stdio.h>
 // #include <stdlib.h>
 // #include <linux/termios.h>
 //
-// int main(int argc, const char **argv) {
-//   printf("TCSETS2 = 0x%08X\n", TCSETS2);
-//   printf("BOTHER  = 0x%08X\n", BOTHER);
-//   printf("NCCS    = %d\n",     NCCS);
-//   return 0;
-// }
-//
+//	int main(int argc, const char **argv) {
+//	  printf("TCSETS2 = 0x%08X\n", TCSETS2);
+//	  printf("BOTHER  = 0x%08X\n", BOTHER);
+//	  printf("NCCS    = %d\n",     NCCS);
+//	  return 0;
+//	}
 const (
 	kTCSETS2 = 0x402C542B
 	kBOTHER  = 0x1000
@@ -65,11 +77,9 @@ type serial_rs485 struct {
 	padding               [5]uint32
 }
 
-//
 // Returns a pointer to an instantiates termios2 struct, based on the given
 // OpenOptions. Termios2 is a Linux extension which allows arbitrary baud rates
 // to be specified.
-//
 func makeTermios2(options OpenOptions) (*termios2, error) {
 
 	// Sanity check inter-character timeout and minimum read size options.
@@ -138,7 +148,7 @@ func makeTermios2(options OpenOptions) (*termios2, error) {
 	return t2, nil
 }
 
-func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
+func openInternal(options OpenOptions) (*serialPort, error) {
 
 	file, openErr :=
 		os.OpenFile(
@@ -205,5 +215,5 @@ func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
 		}
 	}
 
-	return file, nil
+	return &serialPort{file}, nil
 }
