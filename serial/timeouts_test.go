@@ -22,7 +22,7 @@ import (
 //   2. And they are connected by a null-modem cable.
 //   3. Or a special driver `com0com` is installed.
 //
-// One can run these tests separately with the following:
+// One can run these tests with the following:
 //   go test -v ./... -run Timeouts
 
 const (
@@ -97,7 +97,7 @@ func TestTimeouts(t *testing.T) {
 				// This doesn't work (at least for Windows)
 				openOptB.InterCharacterTimeout = InterCharacterTimeout
 
-				// Fix InterCharacterTimeout by PlatformSpecificOptions
+				// Fix InterCharacterTimeout
 				timeoutsB := newReadIntercharacterTimeout(time.Duration(InterCharacterTimeout) * time.Millisecond)
 
 				// The total expected timeout is calculated as:
@@ -108,7 +108,7 @@ func TestTimeouts(t *testing.T) {
 				//   Virtual ports (including USB virtual COM adapters) sometimes ignore BaudRate and transmit data at maximum speed.
 				//   In these cases, transferTime will be a few milliseconds
 				// Also
-				//   LAN virtual COM adapters can add network overhead (TCP transmission delay, etc.).
+				//   LAN/USB virtual COM adapters can add transmission overhead (TCP transmission delay, etc.).
 				//   Then transferTime will range from a few milliseconds to several hundred milliseconds.
 
 				transferDataFunc(
@@ -122,9 +122,9 @@ func TestTimeouts(t *testing.T) {
 					timeoutsB,
 				)
 			},
-			expectOpTime:    time.Millisecond * 60,
-			timeoutAccuracy: defaultTimeoutAccuracy,
-			expectValue:     10, // expects for equals to dataLen
+			expectOpTime:    time.Millisecond * 60, // <- depends on test hardware
+			timeoutAccuracy: time.Millisecond * 10, // <- depends on test hardware
+			expectValue:     10,                    // expects for equals to dataLen
 			cleanupFunc:     purgeBothPorts,
 		},
 	}
