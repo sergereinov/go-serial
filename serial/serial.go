@@ -37,5 +37,8 @@ var _ = io.ReadWriteCloser((*Port)(nil))
 func Open(options OpenOptions) (*Port, error) {
 	// Redirect to the OS-specific function.
 	port, err := openInternal(options)
-	return &Port{port}, err
+	if err != nil {
+		return nil, err
+	}
+	return &Port{port}, nil
 }
